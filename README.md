@@ -20,9 +20,9 @@ This sample does nothing about bridging but just looping back debug chip side UA
 Basic version using MCUXpresso SDK API  
 
 ### daplink2uart_bridge_cpp
-Same function as `daplink2uart_bridge` but written in C++ for better code maintenancability.   
+Same function as `daplink2uart_bridge` but written in C++ for better code maintenancability (using MCUXpresso SDK API)
 
 ### daplink2uart_bridge_zephyr
-Using Zephyr OS code. The code itself is written in highly abstracted level and runs on FRDM-MCXA153 and FRDM-MCXN947.  
+Using Zephyr OS. The code itself is written in highly abstracted level and runs on FRDM-MCXA153 and FRDM-MCXN947.  
 Refer to `README.md` in that folder.  
 
