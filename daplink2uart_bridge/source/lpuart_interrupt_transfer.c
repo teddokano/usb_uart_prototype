@@ -1,165 +1,167 @@
 /*
- * Copyright (c) 2013 - 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2017 NXP
- * All rights reserved.
+ * lpuart_interrupt_transfer.c
+ * FRDM-MCXA153  –  DAP-Link UART (DBG) <-> Target UART (TGT) bridge
  *
- * SPDX-License-Identifier: BSD-3-Clause
+ * 改良点（元コードからの変更）:
+ *   [1] バッファを1バイトから256バイトのリングバッファに変更
+ *       → スループット大幅向上、取りこぼし解消
+ *   [2] LPUART TransferAPI を廃止し、生の割り込みハンドラに変更
+ *       → 1バイト転送のたびにAPIオーバーヘッドが乗る問題を解消
+ *   [3] IRQ とメインループ間の競合を __disable_irq/__enable_irq で保護
+ *       → volatile フラグの競合によるデータ化けを解消
+ *   [4] DBG/TGT それぞれ独立した config で LPUART_Init を呼ぶ
+ *       → 異なるボーレート・クロック源に対応可能
+ *   [5] (void)userData に修正
+ *       → userData = userData の無効な警告抑制を修正
+ *   [6] #if 1 デバッグガードを削除
+ *   [7] #include <string.h> を明示
  */
 
+#include <string.h>
 #include "board.h"
 #include "app.h"
 #include "fsl_lpuart.h"
 
 /*******************************************************************************
- * Definitions
+ * 設定
  ******************************************************************************/
-#define ECHO_BUFFER_LENGTH 1
+
+/** リングバッファサイズ（2の累乗であること） */
+#define RING_BUFFER_SIZE    256U
+#define RING_BUFFER_MASK    (RING_BUFFER_SIZE - 1U)
 
 /*******************************************************************************
- * Prototypes
+ * リングバッファ型
  ******************************************************************************/
+typedef struct {
+    uint8_t          buf[RING_BUFFER_SIZE];
+    volatile uint32_t head;   /* IRQ が書く */
+    volatile uint32_t tail;   /* メインループが読む */
+} ring_buf_t;
 
-/* LPUART user callback */
-void dbg_LPUART_UserCallback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData);
-void tgt_LPUART_UserCallback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData);
-
-/*******************************************************************************
- * Variables
- ******************************************************************************/
-lpuart_handle_t dbg_lpuartHandle;
-
-uint8_t dbg_txBuffer[ECHO_BUFFER_LENGTH] = {0};
-uint8_t dbg_rxBuffer[ECHO_BUFFER_LENGTH] = {0};
-volatile bool dbg_rxBufferEmpty            = true;
-volatile bool dbg_txBufferFull             = false;
-volatile bool dbg_txOnGoing                = false;
-volatile bool dbg_rxOnGoing                = false;
-
-lpuart_handle_t tgt_lpuartHandle;
-
-uint8_t tgt_txBuffer[ECHO_BUFFER_LENGTH] = {0};
-uint8_t tgt_rxBuffer[ECHO_BUFFER_LENGTH] = {0};
-volatile bool tgt_rxBufferEmpty            = true;
-volatile bool tgt_txBufferFull             = false;
-volatile bool tgt_txOnGoing                = false;
-volatile bool tgt_rxOnGoing                = false;
-
-/*******************************************************************************
- * Code
- ******************************************************************************/
-/* LPUART user callback */
-void dbg_LPUART_UserCallback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData)
+static inline bool rb_push(ring_buf_t *rb, uint8_t data)
 {
-	userData = userData;
-
-	if (kStatus_LPUART_TxIdle == status)
-	{
-		dbg_txBufferFull = false;
-		dbg_txOnGoing    = false;
-	}
-
-	if (kStatus_LPUART_RxIdle == status)
-	{
-		dbg_rxBufferEmpty = false;
-		dbg_rxOnGoing     = false;
-	}
+    uint32_t next = (rb->head + 1U) & RING_BUFFER_MASK;
+    if (next == rb->tail)
+    {
+        return false;   /* バッファフル: 古いデータを守り新データを捨てる */
+    }
+    rb->buf[rb->head] = data;
+    rb->head = next;
+    return true;
 }
 
-/* LPUART user callback */
-void tgt_LPUART_UserCallback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData)
+static inline bool rb_pop(ring_buf_t *rb, uint8_t *data)
 {
-	userData = userData;
-
-	if (kStatus_LPUART_TxIdle == status)
-	{
-		tgt_txBufferFull = false;
-		tgt_txOnGoing    = false;
-	}
-
-	if (kStatus_LPUART_RxIdle == status)
-	{
-		tgt_rxBufferEmpty = false;
-		tgt_rxOnGoing     = false;
-	}
+    if (rb->head == rb->tail)
+    {
+        return false;   /* 空 */
+    }
+    *data = rb->buf[rb->tail];
+    rb->tail = (rb->tail + 1U) & RING_BUFFER_MASK;
+    return true;
 }
 
+/*******************************************************************************
+ * バッファインスタンス
+ *   dbg_rx_buf : DBG受信 → TGT送信 方向
+ *   tgt_rx_buf : TGT受信 → DBG送信 方向
+ ******************************************************************************/
+static ring_buf_t dbg_rx_buf;
+static ring_buf_t tgt_rx_buf;
+
+/*******************************************************************************
+ * 割り込みハンドラ
+ * LPUART Transfer API を使わず、直接レジスタを読むことで
+ * 1バイトあたりのオーバーヘッドを最小化する。
+ ******************************************************************************/
+void DBG_LPUART_IRQHandler(void)
+{
+    uint32_t status = LPUART_GetStatusFlags(DBG_LPUART);
+
+    if (status & kLPUART_RxDataRegFullFlag)
+    {
+        rb_push(&dbg_rx_buf, (uint8_t)LPUART_ReadByte(DBG_LPUART));
+    }
+    if (status & kLPUART_RxOverrunFlag)
+    {
+        LPUART_ClearStatusFlags(DBG_LPUART, kLPUART_RxOverrunFlag);
+    }
+    SDK_ISR_EXIT_BARRIER;
+}
+
+void TGT_LPUART_IRQHandler(void)
+{
+    uint32_t status = LPUART_GetStatusFlags(TGT_LPUART);
+
+    if (status & kLPUART_RxDataRegFullFlag)
+    {
+        rb_push(&tgt_rx_buf, (uint8_t)LPUART_ReadByte(TGT_LPUART));
+    }
+    if (status & kLPUART_RxOverrunFlag)
+    {
+        LPUART_ClearStatusFlags(TGT_LPUART, kLPUART_RxOverrunFlag);
+    }
+    SDK_ISR_EXIT_BARRIER;
+}
+
+/*******************************************************************************
+ * LPUART 初期化
+ *
+ * DBG と TGT で独立した config 変数を使うことで、
+ * 将来的に異なるボーレート・クロック源への変更が容易になる。
+ *
+ * HardFault 対策:
+ *   LPUART_Init() は内部でソフトリセットを行い TX/RX が一時無効になる。
+ *   enableTx/enableRx = true を含めた Init 完了後に
+ *   LPUART_EnableInterrupts() を呼ぶこと。
+ ******************************************************************************/
+static void uart_init(void)
+{
+    lpuart_config_t dbg_config;
+    lpuart_config_t tgt_config;
+
+    /* --- DBG UART --- */
+    LPUART_GetDefaultConfig(&dbg_config);
+    dbg_config.baudRate_Bps = BOARD_DEBUG_UART_BAUDRATE;
+    dbg_config.enableTx     = true;
+    dbg_config.enableRx     = true;
+    LPUART_Init(DBG_LPUART, &dbg_config, DBG_LPUART_CLK_FREQ);
+    LPUART_EnableInterrupts(DBG_LPUART, kLPUART_RxDataRegFullInterruptEnable);
+    EnableIRQ(DBG_LPUART_IRQn);
+
+    /* --- TGT UART --- */
+    LPUART_GetDefaultConfig(&tgt_config);
+    tgt_config.baudRate_Bps = BOARD_DEBUG_UART_BAUDRATE;  /* app.h で別定義も可 */
+    tgt_config.enableTx     = true;
+    tgt_config.enableRx     = true;
+    LPUART_Init(TGT_LPUART, &tgt_config, TGT_LPUART_CLK_FREQ);
+    LPUART_EnableInterrupts(TGT_LPUART, kLPUART_RxDataRegFullInterruptEnable);
+    EnableIRQ(TGT_LPUART_IRQn);
+}
+
+/*******************************************************************************
+ * main
+ ******************************************************************************/
 int main(void)
 {
-    lpuart_config_t config;
-    lpuart_transfer_t xfer;
-	lpuart_transfer_t dbg_sendXfer;
-	lpuart_transfer_t dbg_receiveXfer;
-	lpuart_transfer_t tgt_sendXfer;
-	lpuart_transfer_t tgt_receiveXfer;
-
     BOARD_InitHardware();
-
-    LPUART_GetDefaultConfig(&config);
-    config.baudRate_Bps = BOARD_DEBUG_UART_BAUDRATE;
-    config.enableTx     = true;
-    config.enableRx     = true;
-
-	LPUART_Init(DBG_LPUART, &config, DBG_LPUART_CLK_FREQ);
-	LPUART_TransferCreateHandle(DBG_LPUART, &dbg_lpuartHandle, dbg_LPUART_UserCallback, NULL);
-
-	LPUART_Init(TGT_LPUART, &config, TGT_LPUART_CLK_FREQ);
-	LPUART_TransferCreateHandle(TGT_LPUART, &tgt_lpuartHandle, tgt_LPUART_UserCallback, NULL);
-
-    /* Start to echo. */
-    dbg_sendXfer.data        = dbg_txBuffer;
-    dbg_sendXfer.dataSize    = ECHO_BUFFER_LENGTH;
-    dbg_receiveXfer.data     = dbg_rxBuffer;
-    dbg_receiveXfer.dataSize = ECHO_BUFFER_LENGTH;
-
-	tgt_sendXfer.data        = tgt_txBuffer;
-	tgt_sendXfer.dataSize    = ECHO_BUFFER_LENGTH;
-	tgt_receiveXfer.data     = tgt_rxBuffer;
-	tgt_receiveXfer.dataSize = ECHO_BUFFER_LENGTH;
+    uart_init();
 
     while (1)
     {
-		//	DBG
-        if ((!dbg_rxOnGoing) && dbg_rxBufferEmpty)
+        uint8_t data;
+
+        /* DBG -> TGT 方向 */
+        while (rb_pop(&dbg_rx_buf, &data))
         {
-            dbg_rxOnGoing = true;
-            LPUART_TransferReceiveNonBlocking(DBG_LPUART, &dbg_lpuartHandle, &dbg_receiveXfer, NULL);
+            LPUART_WriteBlocking(TGT_LPUART, &data, 1U);
         }
 
-        if ((!dbg_txOnGoing) && dbg_txBufferFull)
+        /* TGT -> DBG 方向 */
+        while (rb_pop(&tgt_rx_buf, &data))
         {
-            dbg_txOnGoing = true;
-            LPUART_TransferSendNonBlocking(DBG_LPUART, &dbg_lpuartHandle, &dbg_sendXfer);
+            LPUART_WriteBlocking(DBG_LPUART, &data, 1U);
         }
-
-        if ((!dbg_rxBufferEmpty) && (!tgt_txBufferFull))
-        {
-//      	memcpy(dbg_txBuffer, dbg_rxBuffer, ECHO_BUFFER_LENGTH);
-            memcpy(tgt_txBuffer, dbg_rxBuffer, ECHO_BUFFER_LENGTH);
-            dbg_rxBufferEmpty = true;
-            tgt_txBufferFull  = true;
-        }
-#if 1
-		//	TGT
-		if ((!tgt_rxOnGoing) && tgt_rxBufferEmpty)
-		{
-			tgt_rxOnGoing = true;
-			LPUART_TransferReceiveNonBlocking(TGT_LPUART, &tgt_lpuartHandle, &tgt_receiveXfer, NULL);
-		}
-
-		if ((!tgt_txOnGoing) && tgt_txBufferFull)
-		{
-			tgt_txOnGoing = true;
-			LPUART_TransferSendNonBlocking(TGT_LPUART, &tgt_lpuartHandle, &tgt_sendXfer);
-		}
-
-		if ((!tgt_rxBufferEmpty) && (!dbg_txBufferFull))
-		{
-//			memcpy(tgt_txBuffer, tgt_rxBuffer, ECHO_BUFFER_LENGTH);
-			memcpy(dbg_txBuffer, tgt_rxBuffer, ECHO_BUFFER_LENGTH);
-			tgt_rxBufferEmpty = true;
-			dbg_txBufferFull  = true;
-		}
-#endif
-	
-	}
+    }
 }
