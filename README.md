@@ -7,8 +7,8 @@ The sample code itselves are not bridging data between USB and UART.
 The USB communication device class (CDC) to UART conversion is done by on-board debug interface chip (DAP-LINK chip).  
 The UART converted data is forward to Arduino shield socket D0(RX) and D1(TX) pins on the board.  
 
-Target: FRDM-MCXA153
-Environment: MCUXpresso IDE or VSC
+Target: FRDM-MCXA153   
+Environment: MCUXpresso IDE or VSC   
 
 ## Projects
  There are some projects implemented in different ways.   
