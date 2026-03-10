@@ -486,8 +486,8 @@ outputs:
 - {id: FRO_12M_clock.outFreq, value: 12 MHz}
 - {id: FRO_HF_DIV_clock.outFreq, value: 96 MHz}
 - {id: FRO_HF_clock.outFreq, value: 96 MHz}
-- {id: LPUART0_clock.outFreq, value: 96 MHz, locked: true, accuracy: '0.001'}
-- {id: LPUART2_clock.outFreq, value: 96 MHz, locked: true, accuracy: '0.001'}
+- {id: LPUART0_clock.outFreq, value: 12 MHz, locked: true, accuracy: '0.001'}
+- {id: LPUART2_clock.outFreq, value: 12 MHz, locked: true, accuracy: '0.001'}
 - {id: MAIN_clock.outFreq, value: 96 MHz}
 - {id: Slow_clock.outFreq, value: 24 MHz}
 - {id: System_clock.outFreq, value: 96 MHz}
@@ -500,6 +500,8 @@ settings:
 - {id: LPUART0CLKDIV_HALT, value: Enable}
 - {id: LPUART2CLKDIV_HALT, value: Enable}
 - {id: MRCC.FROHFDIV.scale, value: '1', locked: true}
+- {id: MRCC.LPUART0CLKDIV.scale, value: '8'}
+- {id: MRCC.LPUART2CLKDIV.scale, value: '8'}
 - {id: MRCC.OSTIMERCLKSEL.sel, value: VBAT.CLK16K_1}
 - {id: SYSCON.AHBCLKDIV.scale, value: '1', locked: true}
 sources:
@@ -583,8 +585,8 @@ void BOARD_BootClockFRO96M(void)
     /*!< Set up dividers */
     CLOCK_SetClockDiv(kCLOCK_DivTRACE, 1U);                /* !< Set TRACECLKDIV divider to value 1 */
     CLOCK_SetClockDiv(kCLOCK_DivWWDT0, 1U);                /* !< Set WWDT0CLKDIV divider to value 1 */
-    CLOCK_SetClockDiv(kCLOCK_DivLPUART0, 1U);              /* !< Set LPUART0CLKDIV divider to value 1 */
-    CLOCK_SetClockDiv(kCLOCK_DivLPUART2, 1U);              /* !< Set LPUART2CLKDIV divider to value 1 */
+    CLOCK_SetClockDiv(kCLOCK_DivLPUART0, 8U);              /* !< Set LPUART0CLKDIV divider to value 8 */
+    CLOCK_SetClockDiv(kCLOCK_DivLPUART2, 8U);              /* !< Set LPUART2CLKDIV divider to value 8 */
 
     /* Set SystemCoreClock variable */
     SystemCoreClock = BOARD_BOOTCLOCKFRO96M_CORE_CLOCK;

@@ -346,9 +346,9 @@ void BOARD_BootClockFRO64M(void);
 #define BOARD_BOOTCLOCKFRO96M_LPSPI0_CLOCK            0UL            /* Clock consumers of LPSPI0_clock output : LPSPI0 */
 #define BOARD_BOOTCLOCKFRO96M_LPSPI1_CLOCK            0UL            /* Clock consumers of LPSPI1_clock output : LPSPI1 */
 #define BOARD_BOOTCLOCKFRO96M_LPTMR0_CLOCK            0UL            /* Clock consumers of LPTMR0_clock output : LPTMR0 */
-#define BOARD_BOOTCLOCKFRO96M_LPUART0_CLOCK           96000000UL     /* Clock consumers of LPUART0_clock output : LPUART0 */
+#define BOARD_BOOTCLOCKFRO96M_LPUART0_CLOCK           12000000UL     /* Clock consumers of LPUART0_clock output : LPUART0 */
 #define BOARD_BOOTCLOCKFRO96M_LPUART1_CLOCK           0UL            /* Clock consumers of LPUART1_clock output : LPUART1 */
-#define BOARD_BOOTCLOCKFRO96M_LPUART2_CLOCK           96000000UL     /* Clock consumers of LPUART2_clock output : LPUART2 */
+#define BOARD_BOOTCLOCKFRO96M_LPUART2_CLOCK           12000000UL     /* Clock consumers of LPUART2_clock output : LPUART2 */
 #define BOARD_BOOTCLOCKFRO96M_MAIN_CLOCK              96000000UL     /* Clock consumers of MAIN_clock output : FLEXPWM0 */
 #define BOARD_BOOTCLOCKFRO96M_OSTIMER_CLOCK           0UL            /* Clock consumers of OSTIMER_clock output : OSTIMER0 */
 #define BOARD_BOOTCLOCKFRO96M_FIRC_TRIM_CLOCK         0UL            /* Clock consumers of SCG.FIRC_TRIM_clock output : N/A */
