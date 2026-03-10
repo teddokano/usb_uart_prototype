@@ -276,7 +276,7 @@
 								<option id="com.crt.advproject.link.cpp.lto.optmization.level.1387886189" name="Link-time optimization level" superClass="com.crt.advproject.link.cpp.lto.optmization.level"/>
 								<option id="com.crt.advproject.link.cpp.fpu.2120860599" name="Floating point" superClass="com.crt.advproject.link.cpp.fpu"/>
 								<option id="com.crt.advproject.link.cpp.manage.2133349630" name="Manage linker script" superClass="com.crt.advproject.link.cpp.manage" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.link.cpp.script.1005366674" name="Linker script" superClass="com.crt.advproject.link.cpp.script" value="MCXA153_Project_Debug.ld" valueType="string"/>
+								<option id="com.crt.advproject.link.cpp.script.1005366674" name="Linker script" superClass="com.crt.advproject.link.cpp.script" value="daplink2uart_bridge_cpp_Debug.ld" valueType="string"/>
 								<option id="com.crt.advproject.link.cpp.scriptdir.1980185959" name="Script path" superClass="com.crt.advproject.link.cpp.scriptdir"/>
 								<option id="com.crt.advproject.link.cpp.crpenable.802621930" name="Enable automatic placement of Code Read Protection field in image" superClass="com.crt.advproject.link.cpp.crpenable"/>
 								<option id="com.crt.advproject.link.cpp.flashconfigenable.1575796884" name="Enable automatic placement of Flash Configuration field in image" superClass="com.crt.advproject.link.cpp.flashconfigenable" value="true" valueType="boolean"/>
@@ -641,7 +641,7 @@
 								<option id="com.crt.advproject.link.cpp.lto.optmization.level.748803132" name="Link-time optimization level" superClass="com.crt.advproject.link.cpp.lto.optmization.level"/>
 								<option id="com.crt.advproject.link.cpp.fpu.199220986" name="Floating point" superClass="com.crt.advproject.link.cpp.fpu"/>
 								<option id="com.crt.advproject.link.cpp.manage.239180911" name="Manage linker script" superClass="com.crt.advproject.link.cpp.manage" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.link.cpp.script.406443917" name="Linker script" superClass="com.crt.advproject.link.cpp.script" value="MCXA153_Project_Release.ld" valueType="string"/>
+								<option id="com.crt.advproject.link.cpp.script.406443917" name="Linker script" superClass="com.crt.advproject.link.cpp.script" value="daplink2uart_bridge_cpp_Release.ld" valueType="string"/>
 								<option id="com.crt.advproject.link.cpp.scriptdir.1750920780" name="Script path" superClass="com.crt.advproject.link.cpp.scriptdir"/>
 								<option id="com.crt.advproject.link.cpp.crpenable.1378272000" name="Enable automatic placement of Code Read Protection field in image" superClass="com.crt.advproject.link.cpp.crpenable"/>
 								<option id="com.crt.advproject.link.cpp.flashconfigenable.44411390" name="Enable automatic placement of Flash Configuration field in image" superClass="com.crt.advproject.link.cpp.flashconfigenable" value="true" valueType="boolean"/>
