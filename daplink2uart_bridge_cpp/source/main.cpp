@@ -1,7 +1,10 @@
 /*
- * lpuart_interrupt_transfer.cpp
+ *  @author Tedd OKANO
+ *
+ *  Released under the MIT license License
+ *
  * FRDM-MCXA153  –  DAP-Link UART (DBG) <-> Target UART (TGT) bridge
- * C++ 版
+ * C++ version
  */
 
 #include "board.h"

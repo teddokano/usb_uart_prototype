@@ -1,20 +1,10 @@
 /*
- * lpuart_interrupt_transfer.c
- * FRDM-MCXA153  –  DAP-Link UART (DBG) <-> Target UART (TGT) bridge
+ *  @author Tedd OKANO
  *
- * 改良点（元コードからの変更）:
- *   [1] バッファを1バイトから256バイトのリングバッファに変更
- *       → スループット大幅向上、取りこぼし解消
- *   [2] LPUART TransferAPI を廃止し、生の割り込みハンドラに変更
- *       → 1バイト転送のたびにAPIオーバーヘッドが乗る問題を解消
- *   [3] IRQ とメインループ間の競合を __disable_irq/__enable_irq で保護
- *       → volatile フラグの競合によるデータ化けを解消
- *   [4] DBG/TGT それぞれ独立した config で LPUART_Init を呼ぶ
- *       → 異なるボーレート・クロック源に対応可能
- *   [5] (void)userData に修正
- *       → userData = userData の無効な警告抑制を修正
- *   [6] #if 1 デバッグガードを削除
- *   [7] #include <string.h> を明示
+ *  Released under the MIT license License
+ *
+ * FRDM-MCXA153  –  DAP-Link UART (DBG) <-> Target UART (TGT) bridge
+ * C version
  */
 
 #include <string.h>
