@@ -1,4 +1,7 @@
 /*
+ *  @author Tedd OKANO
+ *  Released under the MIT license License
+ *
  * main.c  –  UART Bridge for FRDM-MCXA153 (Zephyr版)
  *
  * DAP-Link UART (lpuart0) <-> User UART (lpuart2) を双方向ブリッジします。
