@@ -12,6 +12,9 @@ The UART converted data is forward to Arduino shield socket D0(RX) and D1(TX) pi
 Target: FRDM-MCXA153   
 Environment: MCUXpresso IDE or VSC   
 
+### Quick check
+To perform quick check of the bridge operation, short D0 and D1 pin to make loopback path and see typed character comes back on termial.  
+
 ## Projects
  There are some projects implemented in different ways.   
  
@@ -32,5 +35,5 @@ This project is intended to be built by Zephyr development environment.
 Refer to [`README.md`](https://github.com/teddokano/usb_uart_prototype/blob/main/daplink2uart_bridge_zephyr/README.md) in that project folder.  
 
 ### dual_uart
-Just an experimental project to check functionality of two UART ports.  
+Just an experimental project to check functionality of two UART ports. This has been written at very initial phase.   
 This sample does nothing about bridging but just looping back debug chip side UART and D0/D1 pins independently
