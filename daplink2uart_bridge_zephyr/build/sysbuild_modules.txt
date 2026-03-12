@@ -1,0 +1,1 @@
+"mcuboot":"/Users/tedd/dev/Zephyr/zephyr/bootloader/mcuboot":"/Users/tedd/dev/Zephyr/zephyr/bootloader/mcuboot/boot/zephyr/sysbuild"

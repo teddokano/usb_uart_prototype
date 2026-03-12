@@ -1,0 +1,61 @@
+cmake:
+  application:
+    configuration-dir: '/Users/tedd/dev/mcuxpresso/usb_uart_prototype/daplink2uart_bridge_zephyr'
+    source-dir: '/Users/tedd/dev/mcuxpresso/usb_uart_prototype/daplink2uart_bridge_zephyr'
+  board:
+    name: 'frdm_mcxa153'
+    path:
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/boards/nxp/frdm_mcxa153'
+    qualifiers: 'mcxa153'
+    revision: ''
+  devicetree:
+    bindings-dirs:
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/bindings'
+    files:
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/boards/nxp/frdm_mcxa153/frdm_mcxa153.dts'
+     - '/Users/tedd/dev/mcuxpresso/usb_uart_prototype/daplink2uart_bridge_zephyr/boards/frdm_mcxa153.overlay'
+    include-dirs:
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/ambiq/dts'
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/atmel/include'
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/bouffalolab/include'
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/bouffalolab/include/zephyr'
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/gigadevice/include'
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/microchip/include'
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/microchip/dts'
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/nuvoton/dts'
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/nxp/dts'
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/stm32/dts'
+     - '/Users/tedd/dev/Zephyr/zephyr/modules/hal/ti/dts'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/include'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/include/zephyr'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/common'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/vendor'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/rx'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/x86'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/xtensa'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/sparc'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/riscv'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/posix'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/arm64'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/arm'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts/arc'
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/dts'
+    user-files:
+     - '/Users/tedd/dev/mcuxpresso/usb_uart_prototype/daplink2uart_bridge_zephyr/boards/frdm_mcxa153.overlay'
+  kconfig:
+    files:
+     - '/Users/tedd/dev/Zephyr/zephyr/zephyr/boards/nxp/frdm_mcxa153/frdm_mcxa153_defconfig'
+     - '/Users/tedd/dev/mcuxpresso/usb_uart_prototype/daplink2uart_bridge_zephyr/prj.conf'
+    user-files:
+     - '/Users/tedd/dev/mcuxpresso/usb_uart_prototype/daplink2uart_bridge_zephyr/prj.conf'
+  toolchain:
+    name: 'zephyr'
+    path: '/Users/tedd/zephyr-sdk-0.17.4'
+  zephyr:
+    version: '4.3.0'
+    zephyr-base: '/Users/tedd/dev/Zephyr/zephyr/zephyr'
+version: '0.1.0'
+west:
+  command: '/Users/tedd/.mcuxpressotools/.venv_3_14/bin/west build -b frdm_mcxa153'
+  topdir: '/Users/tedd/dev/Zephyr/zephyr'
+  version: '1.5.0'
