@@ -3,37 +3,75 @@
 ## What is this?
 
 Repository for samples of USB-UART bridge application.  
-The sample code itselves are not bridging data between USB and UART.  
-The USB communication device class (CDC) to UART conversion is done by on-board debug interface chip (DAP-LINK chip).  
-The UART converted data is forward to Arduino shield socket D0(RX) and D1(TX) pins on the board.  
+
+### What it does
+
+The application that forward UART data between the DAP-Link interface and the Arduino shield connector (D0/D1 pins).  
+The USB CDC-ACM ↔ UART conversion is handled by the on-board DAP-Link chip, not by the MCU.  
+The MCU's role is to forward data between the DAP-Link UART and a second UART connected to the Arduino shield D0 (RX) / D1 (TX) pins.  
 
 ![connectors](https://github.com/teddokano/usb_uart_prototype/blob/main/docs/img/connectors.png)
+*Board connectors: MCU-Link USB (J15) and Arduino shield D0/D1 (J1-2, J1-4)*
 
-Target: FRDM-MCXA153   
-Environment: MCUXpresso IDE or VSC   
+
+```
+PC
+ |
+ | USB (CDC-ACM)
+ |
+DAP-Link chip        ← USB ↔ UART conversion (done by DAP-Link, not MCU)
+ |
+ | UART (DAP-Link side)
+ |
+MCU                  ← forwards data between the two UARTs
+ |
+ | UART (user side)
+ |
+Arduino D0 / D1 pins ← connect your target device here
+```
+*Signal flow: USB to Arduino D0/D1 pins*
+
+### How to build
+This repository can be imported into MCUXpresso IDE and MCUXpresso for VSC.  
+Just import, build and run.  
+
+> Note:
+> Except `daplink2uart_bridge_zephyr` project. It is not for MCUXpresso.   
+> It needs to be handled in Zephyr environment. 
+
 
 ### Quick check
-To perform quick check of the bridge operation, short D0 and D1 pin to make loopback path and see typed character comes back on termial.  
+Short the D0 and D1 pins together to create a loopback path.  
+Open a terminal at 115200 baud on the MCU-Link USB port (J15) — typed characters should echo back immediately.
 
 ## Projects
  There are some projects implemented in different ways.   
  
 ### daplink2uart_bridge
-Basic version using MCUXpresso SDK API.  
-Performs USB CDC-ACM adapter on MCU-Link USB connector (J15) and D0/D1 pins (J1-2, J1-4) on Arduino shield socket.    
+Basic implementation using the MCUXpresso SDK API.  
+Bridges MCU-Link USB connector (J15) ↔ Arduino shield D0/D1 (J1-2, J1-4).
+
+**Board:** FRDM-MCXA153  
+**Environment:** MCUXpresso IDE or VS Code  
 
 ### daplink2uart_bridge_cpp
-Same function as `daplink2uart_bridge` but written in C++ for better code maintenancability (using MCUXpresso SDK API).  
-Performs USB CDC-ACM adapter on MCU-Link USB connector (J15) and D0/D1 pins (J1-2, J1-4) on Arduino shield socket.    
+Same functionality as `daplink2uart_bridge`  rewritten in C++ for better code maintenancability (using MCUXpresso SDK API).  
+Bridges MCU-Link USB connector (J15) ↔ Arduino shield D0/D1 (J1-2, J1-4).
+
+**Board:** FRDM-MCXA153  
+**Environment:** MCUXpresso IDE or VS Code  
 
 
 ### daplink2uart_bridge_zephyr
-Using Zephyr OS. The code itself is written in highly abstracted level and runs on FRDM-MCXA153 and FRDM-MCXN947.  
-Performs USB CDC-ACM adapter on MCU-Link USB connector (J15) and D0/D1 pins (J1-2, J1-4) on Arduino shield socket.    
+Zephyr RTOS implementation. Written at a high abstraction level using Zephyr's UART API and DeviceTree, making it portable across boards with only overlay changes.  
+Bridges MCU-Link USB connector (J15) ↔ Arduino shield D0/D1 (J1-2, J1-4).
 
-This project is intended to be built by Zephyr development environment. 
-Refer to [`README.md`](https://github.com/teddokano/usb_uart_prototype/blob/main/daplink2uart_bridge_zephyr/README.md) in that project folder.  
+For build instructions, see [`README.md`](https://github.com/teddokano/usb_uart_prototype/blob/main/daplink2uart_bridge_zephyr/README.md) in that project folder.  
+
+**Boards:** FRDM-MCXA153, FRDM-MCXN947  
+**Environment:** Zephyr development environment (`west`)  
 
 ### dual_uart
-Just an experimental project to check functionality of two UART ports. This has been written at very initial phase.   
-This sample does nothing about bridging but just looping back debug chip side UART and D0/D1 pins independently
+Experimental project written at an early stage to verify two independent UART ports.  
+Does **NOT** bridge data — each UART simply loops back independently.  
+Not intended for real use.
