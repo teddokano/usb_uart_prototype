@@ -1,0 +1,23 @@
+&flexcomm2 {
+        status = "okay";
+};
+
+&flexcomm2_lpuart2 {
+        status = "okay";
+        current-speed = <115200>;
+        pinctrl-0 = <&pinmux_flexcomm2_lpuart>;
+        pinctrl-names = "default";
+};
+
+&flexcomm4 {
+        status = "okay";
+};
+
+/* DAP-Link console: flexcomm4_lpuart4 はboard dtsiで設定済み */
+
+/ {
+        chosen {
+                uart-bridge-dbg = &flexcomm4_lpuart4;
+                uart-bridge-tgt = &flexcomm2_lpuart2;
+        };
+};

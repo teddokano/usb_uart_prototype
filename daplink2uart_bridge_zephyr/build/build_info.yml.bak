@@ -1,0 +1,4 @@
+west:
+  command: /Users/tedd/.mcuxpressotools/.venv_3_14/bin/west build -b frdm_mcxa153
+  topdir: /Users/tedd/dev/Zephyr/zephyr
+  version: 1.5.0
