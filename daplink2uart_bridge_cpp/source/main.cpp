@@ -5,9 +5,6 @@
  *
  * FRDM-MCXA153  –  DAP-Link UART (DBG) <-> Target UART (TGT) bridge
  * C++ version
- *
- * 改善: LPUART_WriteBlocking() をやめ TX割り込みドリブンに変更。
- *       送受信すべてを割り込みで完結させ、メインループは WFI のみ。
  */
 
 #include "board.h"
@@ -77,7 +74,8 @@ public:
         cfg.enableTx     = true;
         cfg.enableRx     = true;
         LPUART_Init(uart_, &cfg, clkFreq);
-        /* RX割り込みのみ有効化。TX割り込みはデータが来たとき有効化。 */
+
+		/* RX割り込みのみ有効化。TX割り込みはデータが来たとき有効化。 */
         LPUART_EnableInterrupts(uart_, kLPUART_RxDataRegFullInterruptEnable);
         EnableIRQ(irq_);
     }

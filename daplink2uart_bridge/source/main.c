@@ -5,9 +5,6 @@
  *
  * FRDM-MCXA153  –  DAP-Link UART (DBG) <-> Target UART (TGT) bridge
  * C version
- *
- * 改善: LPUART_WriteBlocking() をやめ TX割り込みドリブンに変更。
- *       送受信すべてを割り込みで完結させ、メインループは WFI のみ。
  */
 
 #include <string.h>
@@ -145,8 +142,6 @@ void TGT_LPUART_IRQHandler(void)
 
 /*******************************************************************************
  * LPUART 初期化
- *
- * TX割り込みは最初は無効。データが来たときだけ有効化される。
  ******************************************************************************/
 static void uart_init(void)
 {
@@ -160,26 +155,25 @@ static void uart_init(void)
     dbg_config.enableRx     = true;
     LPUART_Init(DBG_LPUART, &dbg_config, DBG_LPUART_CLK_FREQ);
     LPUART_EnableInterrupts(DBG_LPUART, kLPUART_RxDataRegFullInterruptEnable);
-    /* TX割り込みは初期無効（データが来たとき有効化） */
-    EnableIRQ(DBG_LPUART_IRQn);
+
+	EnableIRQ(DBG_LPUART_IRQn);
 
     /* --- TGT UART --- */
     LPUART_GetDefaultConfig(&tgt_config);
-    tgt_config.baudRate_Bps = BOARD_DEBUG_UART_BAUDRATE;
-    tgt_config.enableTx     = true;
+
+	tgt_config.baudRate_Bps = BOARD_DEBUG_UART_BAUDRATE;
+	tgt_config.enableTx     = true;
     tgt_config.enableRx     = true;
     LPUART_Init(TGT_LPUART, &tgt_config, TGT_LPUART_CLK_FREQ);
     LPUART_EnableInterrupts(TGT_LPUART, kLPUART_RxDataRegFullInterruptEnable);
-    /* TX割り込みは初期無効（データが来たとき有効化） */
-    EnableIRQ(TGT_LPUART_IRQn);
+
+	EnableIRQ(TGT_LPUART_IRQn);
 }
 
 /*******************************************************************************
  * main
- *
- * 全処理を割り込みで完結させるため、メインループは WFI のみ。
- * CPU は割り込みが来るまでスリープし、消費電力も削減される。
  ******************************************************************************/
+
 int main(void)
 {
     BOARD_InitHardware();
