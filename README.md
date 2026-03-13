@@ -71,7 +71,14 @@ For build instructions, see [`README.md`](https://github.com/teddokano/usb_uart_
 **Boards:** FRDM-MCXA153, FRDM-MCXN947  
 **Environment:** Zephyr development environment (`west`)  
 
-### dual_uart
+### __test_too__hello_world_generator
+Data TX app to test brige RX capability.  
+This app transmit test data from D1 pin continuously.  
+
+**Board:** FRDM-MCXA153  
+**Environment:** MCUXpresso IDE or VS Code  
+
+### __prototyping__dual_uart
 Experimental project written at an early stage to verify two independent UART ports.  
 Does **NOT** bridge data — each UART simply loops back independently.  
 Not intended for real use.
