@@ -158,6 +158,6 @@ int main(void)
 			tgt_txBufferFull  = true;
 		}
 #endif
-	
+
 	}
 }

@@ -47,22 +47,30 @@ Open a terminal at 115200 baud on the MCU-Link USB port (J15) — typed characte
 ## Projects
  There are some projects implemented in different ways.   
  
-### daplink2uart_bridge
+### * daplink2uart_bridge
 Basic implementation using the MCUXpresso SDK API.  
 Bridges MCU-Link USB connector (J15) ↔ Arduino shield D0/D1 (J1-2, J1-4).
 
 **Board:** FRDM-MCXA153  
 **Environment:** MCUXpresso IDE or VS Code  
 
-### daplink2uart_bridge_cpp
-Same functionality as `daplink2uart_bridge`  rewritten in C++ for better code maintenancability (using MCUXpresso SDK API).  
+### * daplink2uart_bridge_cpp
+Same functionality as `daplink2uart_bridge` rewritten in C++ for better code maintenancability (using MCUXpresso SDK API).  
 Bridges MCU-Link USB connector (J15) ↔ Arduino shield D0/D1 (J1-2, J1-4).
 
 **Board:** FRDM-MCXA153  
 **Environment:** MCUXpresso IDE or VS Code  
 
 
-### daplink2uart_bridge_zephyr
+### * daplink2uart_bridge_r01lib
+Same functionality as `daplink2uart_bridge` rewritten in C++ using r01lib library API to have good extensibility.  
+Bridges MCU-Link USB connector (J15) ↔ Arduino shield D0/D1 (J1-2, J1-4).
+
+**Board:** FRDM-MCXA153  
+**Environment:** MCUXpresso IDE or VS Code  
+
+
+### * daplink2uart_bridge_zephyr
 Zephyr RTOS implementation. Written at a high abstraction level using Zephyr's UART API and DeviceTree, making it portable across boards with only overlay changes.  
 Bridges MCU-Link USB connector (J15) ↔ Arduino shield D0/D1 (J1-2, J1-4).
 
@@ -71,14 +79,17 @@ For build instructions, see [`README.md`](https://github.com/teddokano/usb_uart_
 **Boards:** FRDM-MCXA153, FRDM-MCXN947  
 **Environment:** Zephyr development environment (`west`)  
 
-### __test_too__hello_world_generator
+### * __test_too__hello_world_generator
 Data TX app to test brige RX capability.  
 This app transmit test data from D1 pin continuously.  
 
 **Board:** FRDM-MCXA153  
 **Environment:** MCUXpresso IDE or VS Code  
 
-### __prototyping__dual_uart
+### * __prototyping__dual_uart
 Experimental project written at an early stage to verify two independent UART ports.  
 Does **NOT** bridge data — each UART simply loops back independently.  
 Not intended for real use.
+
+### * _r01lib_frdm_mcxa153
+Library project: r01lib. This project cannot run by itself. This project is linked from `daplink2uart_bridge_r01lib` project.  
