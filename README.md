@@ -79,7 +79,7 @@ For build instructions, see [`README.md`](https://github.com/teddokano/usb_uart_
 **Boards:** FRDM-MCXA153, FRDM-MCXN947  
 **Environment:** Zephyr development environment (`west`)  
 
-### * __test_too__hello_world_generator
+### * __test_tool__hello_world_generator
 Data TX app to test brige RX capability.  
 This app transmit test data from D1 pin continuously.  
 
